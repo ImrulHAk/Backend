@@ -7,6 +7,7 @@ const dbconnect = require("./config/db");
 dbconnect();
 
 //localhost:3000
+app.use(express.json());
 app.use(route);
 
 app.listen(port, () => {

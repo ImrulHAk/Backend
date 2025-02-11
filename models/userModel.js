@@ -7,7 +7,7 @@ const userSchema = new Schema({
   email: {
     type: String,
     required: true,
-    unique: [true, "please give an email"],
+    // unique: [true],
   },
   password: {
     type: String,
@@ -21,6 +21,9 @@ const userSchema = new Schema({
     type: String,
     enum: ["user", "admin"],
     default: "user",
+  },
+  otp: {
+    type: String,
   },
 });
 

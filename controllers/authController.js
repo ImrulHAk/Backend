@@ -1,5 +1,6 @@
 const { sendEmail } = require("../helpers/sendEmail");
 const userModel = require("../models/userModel");
+const jwt = require("jsonwebtoken");
 const otpGenerator = require("otp-generator");
 const bcrypt = require("bcrypt");
 const aleaRNGFactory = require("number-generator/lib/aleaRNGFactory");
@@ -58,11 +59,25 @@ async function LoginController(req, res) {
         async function (err, result) {
           const user = await userModel.findOne({ email }).select("-password");
           if (result) {
-            return res.status(200).json({
-              success: true,
-              msg: "login successful",
-              data: user,
-            });
+            if (existinguser.role == "user") {
+              const token = jwt.sign({ user }, process.env.JWT_secret);
+              return res.status(200).json({
+                success: true,
+                msg: "user login successful",
+                data: user,
+                token: token,
+              });
+            } else if (existinguser.role == "admin") {
+              const token = jwt.sign({ user }, process.env.JWT_secret, {
+                expiresIn: "10m",
+              });
+              return res.status(200).json({
+                success: true,
+                msg: "admin login successful",
+                data: user,
+                token: token,
+              });
+            }
           } else {
             res.status(404).json({ success: false, msg: "wrong password" });
           }

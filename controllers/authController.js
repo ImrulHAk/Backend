@@ -45,8 +45,35 @@ async function SignupController(req, res) {
   }
 }
 
-function LoginController(req, res) {
-  res.send("login");
+async function LoginController(req, res) {
+  const { email, password } = req.body;
+  try {
+    const existinguser = await userModel.findOne({ email });
+    if (!existinguser) {
+      return res.status(404).json({ success: false, msg: "email not found" });
+    } else {
+      bcrypt.compare(
+        password,
+        existinguser.password,
+        async function (err, result) {
+          const user = await userModel.findOne({ email }).select("-password");
+          if (result) {
+            return res.status(200).json({
+              success: true,
+              msg: "login successful",
+              data: user,
+            });
+          } else {
+            res.status(404).json({ success: false, msg: "wrong password" });
+          }
+        }
+      );
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({ err: error.message ? error.message : error, success: false });
+  }
 }
 
 async function VerifyOtpController(req, res) {
@@ -70,7 +97,6 @@ async function VerifyOtpController(req, res) {
       .status(500)
       .json({ err: error.message ? error.message : error, success: false });
   }
-  res.send(req.body);
 }
 
 module.exports = { SignupController, LoginController, VerifyOtpController };

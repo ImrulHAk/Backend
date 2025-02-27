@@ -8,6 +8,7 @@ dbconnect();
 
 //localhost:3000
 app.use(express.json());
+app.use(express.static("uploads"));
 app.use(route);
 
 app.listen(port, () => {

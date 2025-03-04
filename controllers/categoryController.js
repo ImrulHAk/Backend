@@ -69,9 +69,9 @@ async function deleteCategory(req, res) {
     let splitpath = existingcategory.image.split("/");
     let imagepath = splitpath[splitpath.length - 1];
 
-    fs.unlink(`${existingpath}/${imagepath}`, (err)=>{
-      console.log(err)
-    })
+    fs.unlink(`${existingpath}/${imagepath}`, (err) => {
+      console.log(err);
+    });
 
     res.status(200).json({
       success: true,
@@ -80,10 +80,71 @@ async function deleteCategory(req, res) {
     });
   }
 }
+async function updateCategory(req, res) {
+  let { id } = req.params;
+  let { title } = req.body;
+  let { filename } = req.file || {};
+
+  try {
+    if (title && filename) {
+      let existingpath = path.join(__dirname, "../uploads");
+      let existingcategory = await categoryModel.findOneAndUpdate(
+        { _id: id },
+        { image: `http://localhost:3000/${filename}`, title: title }
+      );
+      let splitpath = existingcategory.image.split("/");
+      let imagepath = splitpath[splitpath.length - 1];
+
+      fs.unlink(`${existingpath}/${imagepath}`, (err) => {
+        console.log(err);
+      });
+
+      res.status(200).json({
+        success: true,
+        msg: "category updated",
+        data: existingcategory,
+      });
+    } else if (filename) {
+      let existingpath = path.join(__dirname, "../uploads");
+      let existingcategory = await categoryModel.findOneAndUpdate(
+        { _id: id },
+        { image: `http://localhost:3000/${filename}` }
+      );
+      let splitpath = existingcategory.image.split("/");
+      let imagepath = splitpath[splitpath.length - 1];
+
+      fs.unlink(`${existingpath}/${imagepath}`, (err) => {
+        console.log(err);
+      });
+
+      res.status(200).json({
+        success: true,
+        msg: "category image updated",
+        data: existingcategory,
+      });
+    } else if (title) {
+      let updatecategory = await categoryModel.findOneAndUpdate(
+        { _id: id },
+        { title: title },
+        { new: true }
+      );
+      return res.status(201).json({
+        success: true,
+        msg: "category title updated",
+        data: updatecategory,
+      });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ err: error.message ? error.message : error, success: false });
+  }
+}
 
 module.exports = {
   categoryController,
   fetchAllcategory,
   singleCategory,
   deleteCategory,
+  updateCategory,
 };

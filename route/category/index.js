@@ -5,6 +5,7 @@ const {
   fetchAllcategory,
   singleCategory,
   deleteCategory,
+  updateCategory,
 } = require("../../controllers/categoryController");
 const router = express.Router();
 
@@ -30,6 +31,8 @@ router.get("/allcategory", fetchAllcategory);
 
 router.get("/singlecategory/:id", singleCategory);
 
-router.delete("/deletecategory/:id", deleteCategory)
+router.delete("/deletecategory/:id", deleteCategory);
+
+router.patch("/updatecategory/:id", upload.single("image"), updateCategory);
 
 module.exports = router;

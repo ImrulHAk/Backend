@@ -8,10 +8,12 @@ const productSchema = new Schema(
     description: {
       type: String,
     },
-    image: {
-      type: String,
-      required: true,
-    },
+    image: [
+      {
+        type: String,
+        required: true,
+      },
+    ],
     sellingprice: {
       type: Number,
       require: true,
@@ -23,7 +25,11 @@ const productSchema = new Schema(
       type: Number,
       require: true,
     },
-    color: [],
+    color: [String],
+    category: {
+      type: mongoose.Types.ObjectId,
+      ref: "Category",
+    },
   },
   {
     timestamps: true,

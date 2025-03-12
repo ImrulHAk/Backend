@@ -2,6 +2,7 @@ const categoryModel = require("../models/categoryModel");
 const productModel = require("../models/productModel");
 const path = require("path");
 const fs = require("fs");
+const { error } = require("console");
 
 async function createproductController(req, res) {
   let {
@@ -62,6 +63,22 @@ async function getAllproductController(req, res) {
   }
 }
 
+async function singleProductController(req, res) {
+  let { id } = req.params;
+  try {
+    let singleproduct = await productModel.findOne({ _id: id });
+    return res.status(200).json({
+      success: true,
+      msg: "single product fetch successful",
+      data: singleproduct,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ err: error.message ? error.message : error, success: false });
+  }
+}
+
 async function deleteProductController(req, res) {
   let { id } = req.params;
 
@@ -96,15 +113,61 @@ async function deleteProductController(req, res) {
   }
 }
 
-async function singleProductController(req, res) {
+async function updateProductController(req, res) {
   let { id } = req.params;
+  let {
+    title,
+    description,
+    sellingprice,
+    discountprice,
+    stock,
+    color,
+    category,
+  } = req.body;
+
   try {
-    let singleproduct = await productModel.findOne({ _id: id });
-    return res.status(200).json({
-      success: true,
-      msg: "single product fetch successful",
-      data: singleproduct,
-    });
+    if (
+      title &&
+      description &&
+      sellingprice &&
+      discountprice &&
+      stock &&
+      color &&
+      category
+    ) {
+      let existingpath = path.join(__dirname, "../uploads");
+      let updateproduct = await productModel.findOneAndUpdate(
+        { _id: id },
+        {
+          image: `http://localhost:3000/${filename}`,
+          title,
+          description,
+          sellingprice,
+          discountprice,
+          stock,
+          color,
+          category,
+        },
+        {
+          new: true,
+        }
+      );
+      updateproduct.image.forEach((imgpath) => {
+        let splitpath = imgpath.split("/");
+        let imagepath = splitpath[splitpath.length - 1];
+        fs.unlink(`${existingpath}/${imagepath}`, (err) => {
+          console.log(err);
+        });
+      });
+
+      res.status(200).json({
+        success: true,
+        msg: "product updated",
+        data: updateproduct,
+      });
+    } else {
+      res.send(error);
+    }
   } catch (error) {
     return res
       .status(500)
@@ -117,4 +180,5 @@ module.exports = {
   getAllproductController,
   deleteProductController,
   singleProductController,
+  updateProductController,
 };

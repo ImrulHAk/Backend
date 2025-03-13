@@ -33,6 +33,10 @@ router.post(
 router.get("/products", getAllproductController);
 router.delete("/deleteproduct/:id", deleteProductController);
 router.get("/singleproduct/:id", singleProductController);
-router.patch("/updateproduct/:id", updateProductController)
+router.patch(
+  "/updateproduct/:id",
+  upload.array("images", 4),
+  updateProductController
+);
 
 module.exports = router;

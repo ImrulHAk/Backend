@@ -1,8 +1,7 @@
-const categoryModel = require("../models/categoryModel");
-const productModel = require("../models/productModel");
-const path = require("path");
 const fs = require("fs");
-const { error } = require("console");
+const path = require("path");
+const productModel = require("../models/productModel");
+const categoryModel = require("../models/categoryModel");
 
 async function createproductController(req, res) {
   let {
@@ -124,6 +123,9 @@ async function updateProductController(req, res) {
     color,
     category,
   } = req.body;
+  let images = req.files.map(
+    (item) => `http://localhost:3000/${item.filename}`
+  );
 
   try {
     if (
@@ -139,7 +141,7 @@ async function updateProductController(req, res) {
       let updateproduct = await productModel.findOneAndUpdate(
         { _id: id },
         {
-          image: `http://localhost:3000/${filename}`,
+          image: images,
           title,
           description,
           sellingprice,
@@ -166,7 +168,7 @@ async function updateProductController(req, res) {
         data: updateproduct,
       });
     } else {
-      res.send(error);
+      res.status(400).json({ success: false, msg: "All fields are required." });
     }
   } catch (error) {
     return res
